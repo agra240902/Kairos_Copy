@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kairos — XAUUSD EA</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+:root{
+  --bg: #f0f4f8;
+  --glass: rgba(255,255,255,0.72);
+  --glass-strong: rgba(255,255,255,0.88);
+  --glass-border: rgba(255,255,255,0.9);
+  --glass-border-dim: rgba(0,0,0,0.07);
+  --blur: blur(20px);
+  --blur-sm: blur(12px);
+  --text: #1a1a2e;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  --shadow: 0 8px 32px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 4px 16px rgba(0,0,0,0.06);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-pill: 99px;
+  --green: #16a34a;
+  --red: #dc2626;
+  --blue: #2563eb;
+  --amber: #d97706;
+}
+
+body{
+  min-height:100vh;
+  background: var(--bg);
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  color:var(--text);
+  font-size:14px;
+  letter-spacing:-0.01em;
+}
+
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 0%, rgba(219,234,254,0.8) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 100%, rgba(220,252,231,0.6) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(241,245,249,0.5) 0%, transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+*{position:relative;z-index:1}
+
+.glass{
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);
+  box-shadow:var(--shadow);
+  border-radius:var(--radius);
+}
+
+.glass-sm{
+  background:var(--glass);
+  backdrop-filter:var(--blur-sm);
+  -webkit-backdrop-filter:var(--blur-sm);
+  border:1px solid var(--glass-border);
+  box-shadow:var(--shadow-sm);
+  border-radius:var(--radius-sm);
+}
+
+/* Header */
+header{
+  background:rgba(255,255,255,0.8);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  border-bottom:1px solid var(--glass-border-dim);
+  padding:0 16px;
+  height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.logo{display:flex;align-items:center;gap:10px}
+
+.logo-mark{
+  width:30px;height:30px;
+  border-radius:9px;
+  background:linear-gradient(135deg,#1d4ed8,#0ea5e9);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;color:#fff;
+  box-shadow:0 4px 10px rgba(29,78,216,0.3);
+  flex-shrink:0;
+}
+
+.logo-text{font-size:15px;font-weight:600;color:var(--text)}
+.logo-sub{font-size:10px;color:var(--text-dim);margin-top:1px}
+
+.header-right{display:flex;align-items:center;gap:8px}
+
+.pill{
+  display:flex;align-items:center;gap:6px;
+  padding:4px 10px;
+  border-radius:var(--radius-pill);
+  background:rgba(255,255,255,0.8);
+  border:1px solid var(--glass-border-dim);
+  font-size:11px;color:var(--text-muted);
+  white-space:nowrap;
+}
+
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#22c55e;box-shadow:0 0 6px #22c55e88}
+.dot-amber{background:#f59e0b}
+.dot-red{background:#ef4444}
+
+/* Controls */
+.controls{
+  padding:8px 12px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  background:rgba(255,255,255,0.6);
+  backdrop-filter:var(--blur-sm);
+  -webkit-backdrop-filter:var(--blur-sm);
+  border-bottom:1px solid var(--glass-border-dim);
+}
+.controls-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  width:100%;
+}
+@media(min-width:640px){
+  .controls{flex-wrap:nowrap}
+  .controls-row{width:auto}
+}
+
+.divider{width:1px;height:20px;background:var(--glass-border-dim);flex-shrink:0}
+
+.btn{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:6px 11px;
+  border-radius:8px;
+  border:1px solid var(--glass-border-dim);
+  background:rgba(255,255,255,0.85);
+  color:var(--text);
+  font-size:12px;font-weight:500;
+  cursor:pointer;
+  transition:all .15s;
+  white-space:nowrap;
+  -webkit-user-select:none;user-select:none;
+}
+@media(min-width:640px){
+  .btn{padding:7px 14px}
+}
+.btn:active{transform:scale(0.96);background:rgba(255,255,255,1)}
+
+.btn-start{background:rgba(220,252,231,0.9);border-color:rgba(22,163,74,0.2);color:var(--green)}
+.btn-stop{background:rgba(254,226,226,0.9);border-color:rgba(220,38,38,0.2);color:var(--red)}
+.btn-pause{background:rgba(254,243,199,0.9);border-color:rgba(217,119,6,0.2);color:var(--amber)}
+.btn-resume{background:rgba(219,234,254,0.9);border-color:rgba(37,99,235,0.2);color:var(--blue)}
+.btn-override{background:rgba(245,243,255,0.9);border-color:rgba(109,40,217,0.2);color:#7c3aed;font-size:11px}
+
+.mode-label{font-size:11px;color:var(--text-dim);white-space:nowrap}
+
+.mode-btn{
+  padding:5px 11px;border-radius:8px;
+  border:1px solid var(--glass-border-dim);
+  background:transparent;color:var(--text-muted);
+  font-size:11px;cursor:pointer;transition:all .15s;
+  white-space:nowrap;
+}
+.mode-btn.active{background:rgba(219,234,254,0.9);border-color:rgba(37,99,235,0.25);color:var(--blue);font-weight:500}
+.mode-btn:active{transform:scale(0.96)}
+
+/* Main */
+.main{
+  padding:10px 10px;
+  display:flex;flex-direction:column;
+  gap:10px;
+  max-width:1200px;
+  margin:0 auto;
+}
+@media(min-width:640px){
+  .main{padding:14px 16px;gap:14px}
+}
+
+/* Metrics grid */
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+@media(min-width:640px){.metrics{grid-template-columns:repeat(4,1fr)}}
+
+.metric-card{padding:14px 16px}
+
+.metric-label{
+  font-size:10px;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:0.06em;
+  margin-bottom:6px;font-weight:500;
+}
+
+.metric-value{
+  font-size:22px;font-weight:600;
+  color:var(--text);letter-spacing:-0.02em;line-height:1.1;
+}
+
+@media(min-width:640px){.metric-value{font-size:26px}}
+
+.metric-sub{font-size:11px;color:var(--text-muted);margin-top:4px}
+
+.price-card{
+  background:linear-gradient(135deg,rgba(219,234,254,0.85),rgba(224,242,254,0.75)) !important;
+  border:1px solid rgba(147,197,253,0.4) !important;
+}
+.price-card .metric-value{color:#1d4ed8}
+
+/* Session badge */
+.sess-badge{
+  display:inline-flex;align-items:center;
+  padding:2px 8px;border-radius:var(--radius-pill);
+  font-size:10px;font-weight:600;letter-spacing:0.02em;
+}
+.sess-london{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe}
+.sess-ny{background:#ede9fe;color:#6d28d9;border:1px solid #ddd6fe}
+.sess-overlap{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.sess-asian{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
+.sess-pre_london{background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd}
+.sess-off{background:#f1f5f9;color:var(--text-dim);border:1px solid #e2e8f0}
+.sess-late_ny{background:#f1f5f9;color:var(--text-dim);border:1px solid #e2e8f0}
+
+/* Badge */
+.badge{
+  display:inline-block;padding:2px 8px;
+  border-radius:var(--radius-pill);
+  font-size:10px;font-weight:600;
+}
+.badge-green{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.badge-red{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}
+.badge-amber{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
+.badge-blue{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe}
+.badge-purple{background:#ede9fe;color:#6d28d9;border:1px solid #ddd6fe}
+.badge-gray{background:#f1f5f9;color:var(--text-muted);border:1px solid #e2e8f0}
+
+/* Content grid */
+.content-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+@media(min-width:768px){.content-grid{grid-template-columns:1fr 1fr}}
+
+.card-title{
+  font-size:10px;font-weight:600;
+  color:var(--text-dim);text-transform:uppercase;
+  letter-spacing:0.07em;margin-bottom:12px;
+}
+
+/* Signal items */
+.signal-item{
+  border:1px solid rgba(0,0,0,0.06);
+  border-radius:var(--radius-sm);
+  padding:11px 12px;
+  margin-bottom:7px;
+  background:rgba(255,255,255,0.5);
+  transition:background .15s;
+}
+.signal-item:last-child{margin-bottom:0}
+.signal-item.entry-buy{border-left:2.5px solid #22c55e}
+.signal-item.entry-sell{border-left:2.5px solid #ef4444}
+.signal-item.waiting{border-left:2.5px solid #f59e0b}
+.signal-item.skipped{border-left:2.5px solid #e2e8f0}
+
+.sig-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.sig-mode{font-size:11px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.04em}
+.sig-badges{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+
+.sig-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:5px;margin-top:7px;
+}
+
+.sig-cell{
+  background:rgba(248,250,252,0.8);
+  border:1px solid rgba(0,0,0,0.05);
+  border-radius:7px;padding:6px 8px;
+}
+.sig-cell .k{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.04em}
+.sig-cell .v{font-size:12px;font-weight:600;color:var(--text);margin-top:2px}
+
+.sig-note{font-size:11px;color:var(--text-muted);margin-top:6px}
+
+/* Watchlist */
+.watchlist-section{
+  margin-top:12px;padding-top:12px;
+  border-top:1px solid rgba(0,0,0,0.06);
+}
+
+.watchlist-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 10px;
+  background:rgba(248,250,252,0.8);
+  border:1px solid rgba(0,0,0,0.05);
+  border-radius:8px;margin-bottom:4px;font-size:11px;
+}
+
+/* Position table */
+.pos-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:0 4px}
+.pos-table th,.pos-table td{padding:7px 5px;font-size:10px}
+@media(min-width:640px){.pos-table th,.pos-table td{padding:8px 7px;font-size:11px}}
+
+.pos-table{width:100%;border-collapse:collapse;font-size:11px;min-width:0}
+.pos-table th{
+  text-align:left;font-size:9px;font-weight:600;
+  color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;
+  padding:0 7px 8px;border-bottom:1px solid rgba(0,0,0,0.06);
+}
+.pos-table td{
+  padding:8px 7px;border-bottom:1px solid rgba(0,0,0,0.04);
+  color:var(--text-muted);
+}
+.pos-table tr:last-child td{border-bottom:none}
+.buy{color:var(--green) !important;font-weight:600}
+.sell{color:var(--red) !important;font-weight:600}
+.profit-pos{color:var(--green) !important;font-weight:500}
+.profit-neg{color:var(--red) !important;font-weight:500}
+.pnl-pos{color:var(--green)}
+.pnl-neg{color:var(--red)}
+
+.empty-state{
+  text-align:center;padding:24px 16px;
+  color:var(--text-dim);font-size:12px;
+}
+
+/* Log */
+.log-wrap{max-height:200px;overflow-y:auto}
+.log-wrap::-webkit-scrollbar{width:3px}
+.log-wrap::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:2px}
+
+.log-entry{
+  display:flex;gap:8px;padding:6px 0;
+  border-bottom:1px solid rgba(0,0,0,0.04);font-size:11px;
+}
+.log-entry:last-child{border-bottom:none}
+.log-time{color:var(--text-dim);min-width:52px;font-variant-numeric:tabular-nums;flex-shrink:0}
+.log-level{min-width:46px;font-weight:600;font-size:9px;padding-top:1px;letter-spacing:0.03em;flex-shrink:0}
+.log-msg{color:var(--text-muted);flex:1;word-break:break-word}
+.lv-TRADE{color:var(--green)}
+.lv-SIGNAL{color:var(--blue)}
+.lv-WARN{color:var(--amber)}
+.lv-ERROR{color:var(--red)}
+.lv-INFO{color:var(--text-dim)}
+
+.perf-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">K</div>
+    <div>
+      <div class="logo-text">Kairos</div>
+      <div class="logo-sub">XAUUSD Expert Advisor</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="pill">
+      <span class="dot dot-amber" id="ea-dot"></span>
+      <span id="ea-text">Idle</span>
+    </div>
+    <div class="pill" style="display:none" id="conn-pill">
+      <span class="dot dot-amber" id="conn-dot"></span>
+      <span id="conn-text">...</span>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-row">
+    <button class="btn btn-start"    onclick="eaAction('start')">▶ Start</button>
+    <button class="btn btn-stop"     onclick="eaAction('stop')">■ Stop</button>
+    <button class="btn btn-pause"    id="btn-pause"  onclick="eaAction('pause')">⏸ Pause</button>
+    <button class="btn btn-resume"   id="btn-resume" onclick="eaAction('resume')" style="display:none">▶ Resume</button>
+    <button class="btn btn-override" onclick="eaAction('reset-daily')">↺ Override</button>
+  </div>
+  <div class="controls-row">
+    <span class="mode-label">Mode</span>
+    <button class="mode-btn active" id="mode-auto"     onclick="setMode('auto')">Auto</button>
+    <button class="mode-btn"        id="mode-scalp"    onclick="setMode('scalp')">Scalp</button>
+    <button class="mode-btn"        id="mode-intraday" onclick="setMode('intraday')">Intraday</button>
+    <button class="mode-btn"        id="mode-swing"    onclick="setMode('swing')">Swing</button>
+  </div>
+</div>
+
+<main class="main">
+
+  <div class="metrics">
+    <div class="glass metric-card price-card">
+      <div class="metric-label">XAUUSD</div>
+      <div class="metric-value" id="price">—</div>
+      <div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span id="session-badge" class="sess-badge sess-off">Off</span>
+        <span class="metric-sub" style="margin:0">Spread: <span id="spread">—</span></span>
+      </div>
+    </div>
+
+    <div class="glass metric-card">
+      <div class="metric-label">Balance</div>
+      <div class="metric-value" id="balance">—</div>
+      <div class="metric-sub">Equity: <span id="equity">—</span></div>
+      <div class="metric-sub" id="usd-idr-rate" style="margin-top:2px">Kurs: —</div>
+    </div>
+
+    <div class="glass metric-card">
+      <div class="metric-label">PnL Hari Ini</div>
+      <div class="metric-value" id="pnl-idr">—</div>
+      <div class="metric-sub" id="pnl-usd">—</div>
+    </div>
+
+    <div class="glass metric-card">
+      <div class="metric-label">Performa</div>
+      <div class="metric-value" id="winrate">—</div>
+      <div class="perf-row">
+        <span class="badge badge-green" id="wins-badge">0 W</span>
+        <span class="badge badge-red"   id="losses-badge">0 L</span>
+        <span class="badge badge-gray"  id="open-badge">0 open</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="glass" style="padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="card-title" style="margin-bottom:0">Sinyal</div>
+        <span style="font-size:10px;color:var(--text-dim)" id="last-scan">—</span>
+      </div>
+      <div id="signals-container">
+        <div class="empty-state">Menunggu sinyal...</div>
+      </div>
+      <div class="watchlist-section">
+        <div class="card-title" style="margin-bottom:7px">Watchlist</div>
+        <div id="watchlist-container">
+          <div style="font-size:11px;color:var(--text-dim)">Tidak ada setup menunggu</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass" style="padding:12px">
+      <div class="card-title">Posisi Terbuka</div>
+      <div class="pos-wrap">
+        <div id="positions-container">
+          <div class="empty-state">Tidak ada posisi terbuka</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:12px">
+    <div class="card-title">Activity Log</div>
+    <div class="log-wrap">
+      <div id="log-container">
+        <div class="empty-state" style="padding:10px 0">Menunggu aktivitas...</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let ws=null;
+
+function connect(){
+  ws=new WebSocket(`ws://${location.host}/ws`);
+  const pill=document.getElementById('conn-pill');
+  ws.onopen=()=>{
+    pill.style.display='flex';
+    document.getElementById('conn-dot').className='dot dot-green';
+    document.getElementById('conn-text').textContent='Online';
+  };
+  ws.onmessage=e=>updateDashboard(JSON.parse(e.data));
+  ws.onclose=()=>{
+    document.getElementById('conn-dot').className='dot dot-red';
+    document.getElementById('conn-text').textContent='Offline';
+    setTimeout(connect,3000);
+  };
+  ws.onerror=()=>ws.close();
+}
+
+function updateDashboard(d){
+  const m=d.market,a=d.account,s=d.status,p=d.performance;
+
+  if(m.price) document.getElementById('price').textContent=m.price.toFixed(2);
+  document.getElementById('spread').textContent=m.spread_pip?m.spread_pip.toFixed(1)+' pip':'—';
+
+  const sb=document.getElementById('session-badge');
+  const sl={london:'London',ny:'NY',overlap:'LDN+NY',asian:'Asian',pre_london:'Pre-LDN',off:'Off',late_ny:'Late NY'};
+  sb.textContent=sl[m.session]||(m.session||'off');
+  sb.className=`sess-badge sess-${m.session||'off'}`;
+
+  document.getElementById('balance').textContent=`$${(a.balance_usd||0).toFixed(2)}`;
+  document.getElementById('equity').textContent=`$${(a.equity_usd||0).toFixed(2)}`;
+  const rateEl=document.getElementById('usd-idr-rate');
+  if(rateEl&&a.usd_idr) rateEl.textContent=`Kurs: Rp ${Math.round(a.usd_idr).toLocaleString('id-ID')}`;
+
+  const pnl=a.daily_pnl_idr||0;
+  const pnlEl=document.getElementById('pnl-idr');
+  pnlEl.textContent=`Rp ${Math.round(pnl).toLocaleString('id-ID')}`;
+  pnlEl.className=`metric-value ${pnl>=0?'pnl-pos':'pnl-neg'}`;
+  document.getElementById('pnl-usd').textContent=`$${(a.daily_pnl_usd||0).toFixed(2)}`;
+
+  document.getElementById('winrate').textContent=`${p.win_rate||0}%`;
+  document.getElementById('wins-badge').textContent=`${p.wins||0} W`;
+  document.getElementById('losses-badge').textContent=`${p.losses||0} L`;
+  document.getElementById('open-badge').textContent=`${a.open_count||0} open`;
+
+  const eaDot=document.getElementById('ea-dot');
+  const eaText=document.getElementById('ea-text');
+  if(s.running&&s.paused){eaDot.className='dot dot-amber';eaText.textContent='Paused';}
+  else if(s.running){eaDot.className='dot dot-green';eaText.textContent=`Running #${s.scan_count}`;}
+  else{eaDot.className='dot dot-red';eaText.textContent='Stopped';}
+
+  document.getElementById('btn-pause').style.display=s.paused?'none':'';
+  document.getElementById('btn-resume').style.display=s.paused?'':'none';
+  document.getElementById('last-scan').textContent=s.last_scan?`Scan ${s.last_scan}`:'';
+
+  ['auto','scalp','intraday','swing'].forEach(mo=>
+    document.getElementById(`mode-${mo}`).classList.toggle('active',s.mode===mo)
+  );
+
+  renderSignals(d.signals);
+  renderWatchlist(d.watchlist);
+  renderPositions(d.positions);
+  renderLog(d.log);
+}
+
+function renderSignals(signals){
+  const c=document.getElementById('signals-container');
+  if(!signals||!Object.keys(signals).length)return;
+  let html='';
+  for(const[mode,sig]of Object.entries(signals)){
+    let cls='signal-item';
+    if(sig.action==='ENTRY')cls+=sig.signal_type==='BUY'?' entry-buy':' entry-sell';
+    else if(sig.action==='WAIT')cls+=' waiting';
+    else cls+=' skipped';
+    const gc={'A+':'badge-purple','A':'badge-blue','B':'badge-amber','NONE':'badge-gray'}[sig.grade]||'badge-gray';
+    const ab=sig.action==='ENTRY'
+      ?`<span class="badge ${sig.signal_type==='BUY'?'badge-green':'badge-red'}">${sig.signal_type}</span>`
+      :sig.action==='WAIT'?'<span class="badge badge-amber">WAIT</span>'
+      :'<span class="badge badge-gray">SKIP</span>';
+    html+=`<div class="${cls}">
+      <div class="sig-header">
+        <span class="sig-mode">${mode}</span>
+        <div class="sig-badges">
+          <span style="font-size:9px;color:var(--text-dim);margin-right:2px">${(sig.session||'').toUpperCase()}</span>
+          <span class="badge ${gc}">${sig.grade}</span>${ab}
+        </div>
+      </div>`;
+    if(sig.action==='ENTRY'){
+      html+=`<div class="sig-grid">
+        <div class="sig-cell"><div class="k">Entry</div><div class="v">${sig.entry?.toFixed(2)||'—'}</div></div>
+        <div class="sig-cell"><div class="k">SL</div><div class="v" style="color:var(--red)">${sig.sl?.toFixed(2)||'—'}</div></div>
+        <div class="sig-cell"><div class="k">TP</div><div class="v" style="color:var(--green)">${sig.tp?.toFixed(2)||'—'}</div></div>
+        <div class="sig-cell"><div class="k">Risk</div><div class="v">${sig.risk_pip} pip</div></div>
+        <div class="sig-cell"><div class="k">Reward</div><div class="v">${sig.reward_pip} pip</div></div>
+        <div class="sig-cell"><div class="k">Lot</div><div class="v">${sig.lot}</div></div>
+      </div>`;
+      if(sig.reasons?.length)
+        html+=`<div class="sig-note" style="color:var(--green)">${sig.reasons.slice(0,2).map(r=>'+'+r).join(' · ')}</div>`;
+    }else{
+      const note=sig.rejections?.[0]||'';
+      if(note)html+=`<div class="sig-note">${note}</div>`;
+    }
+    html+=`<div style="font-size:9px;color:var(--text-dim);margin-top:5px">${sig.timestamp||''}</div></div>`;
+  }
+  c.innerHTML=html;
+}
+
+function renderWatchlist(watchlist){
+  const c=document.getElementById('watchlist-container');
+  if(!watchlist?.length){
+    c.innerHTML='<div style="font-size:11px;color:var(--text-dim)">Tidak ada setup menunggu</div>';
+    return;
+  }
+  c.innerHTML=watchlist.map(w=>`
+    <div class="watchlist-item">
+      <span style="font-weight:600;text-transform:uppercase;font-size:10px;color:var(--text)">${w.mode}</span>
+      <span style="color:var(--text-muted);font-size:10px">${w.count} setup menunggu</span>
+    </div>`).join('');
+}
+
+function renderPositions(positions){
+  const c=document.getElementById('positions-container');
+  if(!positions?.length){
+    c.innerHTML='<div class="empty-state">Tidak ada posisi terbuka</div>';
+    return;
+  }
+  let html=`<table class="pos-table"><thead><tr>
+    <th></th><th>#</th><th>Type</th><th>Lot</th><th>Open</th><th>SL</th><th>TP</th><th>P/L</th>
+  </tr></thead><tbody>`;
+  for(const p of positions){
+    const src=p.is_ea
+      ?'<span class="badge badge-blue" style="font-size:8px">EA</span>'
+      :'<span class="badge badge-gray" style="font-size:8px">M</span>';
+    html+=`<tr>
+      <td>${src}</td>
+      <td>${p.ticket}</td>
+      <td class="${p.type==='BUY'?'buy':'sell'}">${p.type}</td>
+      <td>${p.volume}</td>
+      <td>${p.open_price?.toFixed(2)}</td>
+      <td style="color:var(--red)">${p.sl?.toFixed(2)||'—'}</td>
+      <td style="color:var(--green)">${p.tp?.toFixed(2)||'—'}</td>
+      <td class="${(p.profit_idr||0)>=0?'profit-pos':'profit-neg'}">Rp${Math.round(p.profit_idr||0).toLocaleString('id-ID')}</td>
+    </tr>`;
+  }
+  c.innerHTML=html+'</tbody></table>';
+}
+
+function renderLog(logs){
+  if(!logs?.length)return;
+  document.getElementById('log-container').innerHTML=[...logs].reverse().map(e=>
+    `<div class="log-entry">
+      <span class="log-time">${e.time}</span>
+      <span class="log-level lv-${e.level}">${e.level}</span>
+      <span class="log-msg">${e.msg}</span>
+    </div>`
+  ).join('');
+}
+
+async function eaAction(a){
+  try{await fetch(`/api/ea/${a}`,{method:'POST'});}
+  catch(e){console.error(e);}
+}
+
+async function setMode(m){
+  try{await fetch(`/api/ea/mode/${m}`,{method:'POST'});}
+  catch(e){console.error(e);}
+}
+
+connect();
+</script>
+</body>
+</html>
