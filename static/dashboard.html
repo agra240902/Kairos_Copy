@@ -421,7 +421,7 @@ header{
     </div>
 
     <div class="glass metric-card">
-      <div class="metric-label">PnL Hari Ini</div>
+      <div class="metric-label">PnL Hari Ini (¢)</div>
       <div class="metric-value" id="pnl-idr">—</div>
       <div class="metric-sub" id="pnl-usd">—</div>
     </div>
@@ -513,9 +513,9 @@ function updateDashboard(d){
 
   const pnl=a.daily_pnl_idr||0;
   const pnlEl=document.getElementById('pnl-idr');
-  pnlEl.textContent=`Rp ${Math.round(pnl).toLocaleString('id-ID')}`;
+  pnlEl.textContent=`¢${pnl.toFixed(2)}`;
   pnlEl.className=`metric-value ${pnl>=0?'pnl-pos':'pnl-neg'}`;
-  document.getElementById('pnl-usd').textContent=`$${(a.daily_pnl_usd||0).toFixed(2)}`;
+  document.getElementById('pnl-usd').textContent=`¢${(a.daily_pnl_usd||0).toFixed(2)}`;
 
   document.getElementById('winrate').textContent=`${p.win_rate||0}%`;
   document.getElementById('wins-badge').textContent=`${p.wins||0} W`;
@@ -618,7 +618,7 @@ function renderPositions(positions){
       <td>${p.open_price?.toFixed(2)}</td>
       <td style="color:var(--red)">${p.sl?.toFixed(2)||'—'}</td>
       <td style="color:var(--green)">${p.tp?.toFixed(2)||'—'}</td>
-      <td class="${(p.profit_idr||0)>=0?'profit-pos':'profit-neg'}">Rp${Math.round(p.profit_idr||0).toLocaleString('id-ID')}</td>
+      <td class="${(p.profit_idr||0)>=0?'profit-pos':'profit-neg'}">¢${(p.profit_idr||0).toFixed(2)}</td>
     </tr>`;
   }
   c.innerHTML=html+'</tbody></table>';

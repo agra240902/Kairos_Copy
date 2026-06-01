@@ -14,9 +14,9 @@ from config import MODE_CONFIG, FIBO_ZONE
 
 # Risk per trade: 2% dari balance
 RISK_PCT      = 0.02
-PIP_VALUE_001 = 1.0    # USD per point untuk lot 0.01 di XAUUSDm Exness
-MAX_SL_POINT  = 25.0   # SL maksimal 25 point = $25 per trade (lot 0.01)
-MIN_SL_POINT  = 5.0    # SL minimal 5 point — otomatis diperlebar kalau struktur terlalu sempit
+PIP_VALUE_001 = 0.50   # USD per point untuk lot 0.5 di cent account
+MAX_SL_POINT  = 25.0   # SL maksimal 25 point = $12.50 risk
+MIN_SL_POINT  = 5.0    # SL minimal 5 point
 
 
 @dataclass
@@ -215,7 +215,7 @@ def analyze(mtf_data: dict, current_price: float,
 
     # ── 10. Lot dan TP ─────────────────────────────────────────
     balance    = _get_balance()
-    lot        = 0.01  # fixed lot — 1 point = $1
+    lot        = 0.40  # cent account — 1 point = $0.20
     tp_price   = get_tp_price(signal, current_price, sl_price, rr=cfg["tp_rr"])
     risk_usd   = risk_point * lot * PIP_VALUE_001
     reward_usd = abs(tp_price - current_price) * lot * PIP_VALUE_001

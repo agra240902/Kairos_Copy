@@ -45,7 +45,7 @@ def _build_signal_dict(sig) -> dict:
 
 def _update_positions():
     """Update posisi di dashboard — tampilkan semua termasuk manual."""
-    positions = get_open_positions()  # semua posisi
+    positions = get_open_positions()
     pos_list  = []
     for p in positions:
         pos_list.append({
@@ -56,9 +56,9 @@ def _update_positions():
             "sl":         p.sl,
             "tp":         p.tp,
             "profit_usd": round(p.profit, 2),
-            "profit_idr": round(p.profit * get_usd_idr(), 0),
+            "profit_idr": round(p.profit, 2),  # cent account — tampilkan dalam cent
             "open_time":  datetime.fromtimestamp(p.time).strftime("%H:%M:%S"),
-            "is_ea":      p.magic == 20250521,  # tandai mana yang dari EA
+            "is_ea":      p.magic == MAGIC_NUMBER,
         })
     state.update_state(open_positions=pos_list, open_count=len(get_ea_positions()))
 
@@ -100,7 +100,7 @@ def _scan():
         session       = sess["session"],
         in_killzone   = sess["in_killzone"],
         daily_pnl_usd = stats["pnl_usd"],
-        daily_pnl_idr = stats["pnl_usd"] * get_usd_idr(),
+        daily_pnl_idr = stats["pnl_usd"],  # cent account — tampilkan dalam cent
         wins_today    = stats["wins"],
         losses_today  = stats["losses"],
         last_scan     = datetime.now().strftime("%H:%M:%S"),

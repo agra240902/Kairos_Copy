@@ -10,7 +10,7 @@ from config import (
 )
 
 # ── Maksimal loss per hari dalam USD (hardcoded safety) ──────
-MAX_DAILY_LOSS_USD = 10.0  # stop trading kalau sudah loss $10/hari
+MAX_DAILY_LOSS_USD = 2.0   # $2/hari — ~18% dari balance $11 cent
 
 
 def get_open_positions() -> list:
@@ -124,12 +124,12 @@ def check_all_guards(sl_pip: float, max_spread_pip: float = 35.0) -> dict:
         "msg":    f"Spread: {spread:.1f} pip (max: {max_spread_pip})",
     }
 
-    # 4. SL minimum 5 point untuk gold
+    # 4. SL minimum 5 point
     guards["sl_size"] = {
         "value":  sl_pip,
         "limit":  5.0,
         "passed": sl_pip >= 5.0,
-        "msg":    f"SL: {sl_pip:.1f} point (min: 5)",
+        "msg":    f"SL: {sl_pip:.1f} point (min: 5) = ${sl_pip * 0.50:.2f}",
     }
 
     all_passed = all(g["passed"] for g in guards.values())

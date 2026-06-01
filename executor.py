@@ -2,8 +2,33 @@
 
 import MetaTrader5 as mt5
 from datetime import datetime
+from currency import get_usd_idr
 from config import SYMBOL, MAGIC_NUMBER
 from signal_engine import TradeSignal
+
+
+def _get_filling_mode() -> int:
+    """Get filling mode yang didukung broker."""
+    info = mt5.symbol_info(SYMBOL)
+    if info is None:
+        return mt5.ORDER_FILLING_FOK
+
+    # filling_mode 1 = FOK, 2 = IOC, 4 = RETURN
+    fm = info.filling_mode
+    if fm == 1:
+        return mt5.ORDER_FILLING_FOK
+    elif fm == 2:
+        return mt5.ORDER_FILLING_IOC
+    elif fm == 4:
+        return mt5.ORDER_FILLING_RETURN
+    else:
+        # Coba satu per satu
+        for mode in [mt5.ORDER_FILLING_FOK,
+                     mt5.ORDER_FILLING_IOC,
+                     mt5.ORDER_FILLING_RETURN]:
+            if fm & mode:
+                return mode
+    return mt5.ORDER_FILLING_FOK
 
 
 def place_order(signal: TradeSignal, comment: str = "EA-XAUUSD") -> dict:
@@ -42,7 +67,7 @@ def place_order(signal: TradeSignal, comment: str = "EA-XAUUSD") -> dict:
         "magic":     MAGIC_NUMBER,
         "comment":   f"{comment}-{signal.grade}-{signal.mode[:3]}",
         "type_time": mt5.ORDER_TIME_GTC,
-        "type_filling": mt5.ORDER_FILLING_IOC,
+        "type_filling": _get_filling_mode(),
     }
 
     result = mt5.order_send(request)
@@ -110,7 +135,7 @@ def close_position(ticket: int) -> dict:
         "magic":        MAGIC_NUMBER,
         "comment":      "EA-close",
         "type_time":    mt5.ORDER_TIME_GTC,
-        "type_filling": mt5.ORDER_FILLING_IOC,
+        "type_filling": _get_filling_mode(),
     }
 
     result = mt5.order_send(request)
@@ -143,7 +168,7 @@ def get_position_info(ticket: int) -> dict:
                 "sl":         p.sl,
                 "tp":         p.tp,
                 "profit_usd": p.profit,
-                "profit_idr": p.profit * 17800,
+                "profit_idr": p.profit * get_usd_idr(),
                 "open_time":  datetime.fromtimestamp(p.time).strftime("%H:%M:%S"),
             }
     return {}
