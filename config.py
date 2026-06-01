@@ -1,9 +1,9 @@
 # config.py — semua parameter EA di sini
 
 # ── Kredensial MT5 ──────────────────────────────────────────
-MT5_LOGIN    = 205043621     
-MT5_PASSWORD = "@Boyolali123"  
-MT5_SERVER   = "HFMarketsGlobal-Live15" 
+MT5_LOGIN    = 1234556     
+MT5_PASSWORD = "HAHAHAHA"  
+MT5_SERVER   = "HAHAHAHA" 
 
 # ── Instrument ──────────────────────────────────────────────
 SYMBOL       = "XAUUSDc"      # Exness pakai suffix 'm', cek di MT5 kamu
